@@ -1,23 +1,20 @@
 #!/bin/bash
 
-# Set the username to monitor
-username="your_username"
-
-# Get the logins between midnight and 6 AM for the specified user
-logins=$(awk '/sshd.*Failed password for '"$username"'/ && $2 ~ /^(00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/ { print }' /var/log/secure)
+# Get all logins between midnight and 6 AM from /var/log/secure
+logins=$(awk '$2 ~ /^(00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/ && /Failed password/ { print }' /var/log/secure)
 
 # Check if any logins were found
 if [ -n "$logins" ]; then
-    echo "Failed login attempts for user $username between midnight and 6 AM:"
+    echo "Connections between midnight and 6 AM:"
     echo "$logins"
 
-    # Count the number of failed attempts
-    num_attempts=$(echo "$logins" | wc -l)
+    # Count the number of unique users with multiple incorrect password attempts
+    num_users=$(echo "$logins" | awk '/Failed password/ { print $9 }' | sort | uniq -c | awk '$1 > 5 { print }' | wc -l)
 
-    # If the number of failed attempts is 3 or more, notify
-    if [ "$num_attempts" -ge 3 ]; then
-        echo "User $username has entered the wrong password or username $num_attempts times between midnight and 6 AM."
+    # If there are users with multiple incorrect attempts, display warning
+    if [ "$num_users" -gt 0 ]; then
+        echo "Warning: Multiple incorrect password attempts detected for $num_users user(s) between midnight and 6 AM."
     fi
 else
-    echo "No failed login attempts for user $username between midnight and 6 AM."
+    echo "No connections between midnight and 6 AM."
 fi
