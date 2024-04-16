@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Set the username to monitor
+username="your_username"
+
+# Get the logins between midnight and 6 AM for the specified user
+logins=$(awk '/sshd.*Failed password for '"$username"'/ && $2 ~ /^(00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/ { print }' /var/log/secure)
+
+# Check if any logins were found
+if [ -n "$logins" ]; then
+    echo "Failed login attempts for user $username between midnight and 6 AM:"
+    echo "$logins"
+
+    # Count the number of failed attempts
+    num_attempts=$(echo "$logins" | wc -l)
+
+    # If the number of failed attempts is 3 or more, notify
+    if [ "$num_attempts" -ge 3 ]; then
+        echo "User $username has entered the wrong password or username $num_attempts times between midnight and 6 AM."
+    fi
+else
+    echo "No failed login attempts for user $username between midnight and 6 AM."
+fi
