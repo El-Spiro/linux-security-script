@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Directory to monitor
+directory="/var/log"
+
+# Path to the snapshot file
+snapshot_file="/tmp/snapshot.txt"
+
+# Check if the snapshot file exists, create it if not
+if [ ! -e "$snapshot_file" ]; then
+    echo "Creating empty snapshot file..."
+    touch "$snapshot_file"
+    echo "Empty snapshot file created."
+fi
+
+# Check if the snapshot file is empty
+if [ ! -s "$snapshot_file" ]; then
+    echo "Snapshot file is empty. Creating initial snapshot..."
+    # Create a snapshot of the current state of the directory
+    ls -lR "$directory" > "$snapshot_file"
+    echo "Initial snapshot created."
+fi
+
+# Compare current state with the saved snapshot
+diff_output=$(diff -q "$snapshot_file" <(ls -lR "$directory"))
+
+# Check if there are any differences
+if [ -n "$diff_output" ]; then
+    echo "Changes detected in directory $directory:"
+    echo "$diff_output"
+    echo "Updating snapshot"
+    # Update the snapshot file with the current state of the directory
+    ls -lR "$directory" > "$snapshot_file"
+    echo "Snapshot updated."
+else
+    echo "No changes detected in directory $directory."
+fi
