@@ -1,20 +1,10 @@
 #!/bin/bash
 
-# Get all logins between midnight and 6 AM from /var/log/secure
-logins=$(awk '$2 ~ /^(00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/ && /Failed password/ { print }' /var/log/secure)
+# Define the log file
+logfile="/var/log/secure"
 
-# Check if any logins were found
-if [ -n "$logins" ]; then
-    echo "Connections between midnight and 6 AM:"
-    echo "$logins"
+# Count the number of lines between 0 and 6 hours
+count=$(awk '/ (00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/{count++} END{print count}' "$logfile")
 
-    # Count the number of unique users with multiple incorrect password attempts
-    num_users=$(echo "$logins" | awk '/Failed password/ { print $9 }' | sort | uniq -c | awk '$1 > 5 { print }' | wc -l)
-
-    # If there are users with multiple incorrect attempts, display warning
-    if [ "$num_users" -gt 0 ]; then
-        echo "Warning: Multiple incorrect password attempts detected for $num_users user(s) between midnight and 6 AM."
-    fi
-else
-    echo "No connections between midnight and 6 AM."
-fi
+# Print the count
+echo "Number of lines between 0 and 6 hours: $count"
