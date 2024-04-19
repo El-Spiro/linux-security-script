@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Define the directories to monitor
+User_DIRECTORY="/home/user"
+ROOT_DIRECTORY="/root"
+
+# Function to check for hidden files
+check_hidden_files() {
+    hidden_files_jason=$(find "$JASON_DIRECTORY" -type f -name ".*" -not -name ".")
+    hidden_files_root=$(sudo find "$ROOT_DIRECTORY" -type f -name ".*" -not -name ".")
+
+    if [ -n "$hidden_files_jason" ]; then
+        echo "Hidden files found in $JASON_DIRECTORY:"
+        echo "$hidden_files_jason"
+        # You can add additional actions here, like sending an email or a notification
+    else
+        echo "No hidden files found in $JASON_DIRECTORY."
+    fi
+
+    if [ -n "$hidden_files_root" ]; then
+        echo "Hidden files found in $ROOT_DIRECTORY:"
+        echo "$hidden_files_root"
+        # You can add additional actions here, like sending an email or a notification
+    else
+        echo "No hidden files found in $ROOT_DIRECTORY."
+    fi
+}
+
+# Run the function to check for hidden files
+check_hidden_files
