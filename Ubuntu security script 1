@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Define the log files
+log_files="/var/log/auth.log.1 /var/log/auth.log"
+
+# Define the time range (0 to 6 AM)
+start_time="00:00:00"
+end_time="06:00:00"
+
+# Variable to store the total lines
+total_lines=0
+
+# Loop through each log file
+for log_file in $log_files; do
+    echo "Monitoring $log_file:"
+    
+    # Count the total lines
+    file_lines=$(wc -l < "$log_file")
+    total_lines=$((total_lines + file_lines))
+    
+    # Extract the time and action from each line and check for sudo or password entry attempts
+    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && ($0 ~ /sudo/ || $0 ~ /authentication failure/) {print "\033[1;31m" $0 "\033[0m"}' "$log_file"
+done
+
+echo "Total lines in the log files: $total_lines"
