@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the log file
-log_file="/var/log/auth.log.1"
+log_file="/var/log/auth.log"
 
 # Define the time range (0 to 6 AM)
 start_time="00:00:00"
