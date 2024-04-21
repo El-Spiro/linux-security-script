@@ -28,3 +28,4 @@ echo "Lines containing 'password' between midnight and 6 AM in $log_file:"
 awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /password/ {print $0}' "$log_file"
 
 echo "Total lines in the log file: $total_lines"
+
