@@ -18,8 +18,17 @@ for log_file in $log_files; do
     file_lines=$(wc -l < "$log_file")
     total_lines=$((total_lines + file_lines))
     
-    # Extract the time and action from each line and check for sudo or password entry attempts
-    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && ($0 ~ /sudo/ || $0 ~ /authentication failure/) {print "\033[1;31m" $0 "\033[0m"}' "$log_file"
+    # Print the count of lines between 0 and 6 hours
+    echo "Number of lines between 0 and 6 hours in $log_file:"
+    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) {count++} END {print count}' "$log_file"
+    
+    # Print lines containing "sudo" between 0 and 6 hours
+    echo "Lines containing 'sudo' between midnight and 6 AM in $log_file:"
+    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /sudo/ {print $0}' "$log_file"
+
+    # Print lines containing "password" between 0 and 6 hours
+    echo "Lines containing 'password' between midnight and 6 AM in $log_file:"
+    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /password/ {print $0}' "$log_file"
 done
 
 echo "Total lines in the log files: $total_lines"
