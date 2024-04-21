@@ -3,29 +3,17 @@
 # Define the log file
 log_file="/var/log/auth.log"
 
-# Define the time range (6 to 11 AM)
-start_time="06:00:00"
-end_time="11:00:00"
+echo "Monitoring $log_file:"
 
-# Variable to store the total lines
-total_lines=0
+# Count the total number of lines
+total_count=$(awk '/sudo|password/ {count++} END {print count}' "$log_file")
 
-echo "Monitoring $log_file between 6 AM and 11 AM:"
+echo "Total number of lines in $log_file: $total_count"
 
-# Count the total lines
-total_lines=$(wc -l < "$log_file")
+# Print lines containing "sudo" without the time
+echo "Lines containing 'sudo' in $log_file:"
+awk '/sudo/ {gsub(/^[^:]*: */, ""); print}' "$log_file"
 
-# Print the count of lines between 6 and 11 hours
-echo "Number of lines between 6 and 11 AM in $log_file:"
-awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) {count++} END {print count}' "$log_file"
-
-# Print lines containing "sudo" between 6 and 11 AM
-echo "Lines containing 'sudo' between 6 and 11 AM in $log_file:"
-awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /sudo/ {print $0}' "$log_file"
-
-# Print lines containing "password" between 6 and 11 AM
-echo "Lines containing 'password' between 6 and 11 AM in $log_file:"
-awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /password/ {print $0}' "$log_file"
-
-echo "Total lines in the log file: $total_lines"
-
+# Print lines containing "password" without the time
+echo "Lines containing 'password' in $log_file:"
+awk '/password/ {gsub(/^[^:]*: */, ""); print}' "$log_file"
