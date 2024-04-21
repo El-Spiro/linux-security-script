@@ -1,34 +1,16 @@
 #!/bin/bash
+# Define the log file
+logfile="/var/log/secure"
 
-# Define the log files
-log_files="/var/log/auth.log.1 /var/log/auth.log"
+# Count the number of lines between 0 and 6 hours
+count=$(awk '/ (00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/{count++} END{print count}' "$logfile")
 
-# Define the time range (0 to 6 AM)
-start_time="00:00:00"
-end_time="06:00:00"
+# Print the count
+echo "Number of lines between 0 and 6 hours: $count"
 
-# Variable to store the total lines
-total_lines=0
-
-# Loop through each log file
-for log_file in $log_files; do
-    echo "Monitoring $log_file:"
-    
-    # Count the total lines
-    file_lines=$(wc -l < "$log_file")
-    total_lines=$((total_lines + file_lines))
-    
-    # Print the count of lines between 0 and 6 hours
-    echo "Number of lines between 0 and 6 hours in $log_file:"
-    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) {count++} END {print count}' "$log_file"
-    
-    # Print lines containing "sudo" between 0 and 6 hours
-    echo "Lines containing 'sudo' between midnight and 6 AM in $log_file:"
-    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /sudo/ {print $0}' "$log_file"
-
-    # Print lines containing "password" between 0 and 6 hours
-    echo "Lines containing 'password' between midnight and 6 AM in $log_file:"
-    awk -v start="$start_time" -v end="$end_time" '{time=substr($0, 12, 8)} (time >= start && time <= end) && /password/ {print $0}' "$log_file"
-done
-
-echo "Total lines in the log files: $total_lines"
+# Print lines containing "sudo" between 0 and 6 hours
+echo "Lines containing 'sudo' between midnight and 6 AM:"
+awk '/ (00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/ && /sudo/' "$logfile"
+# Print lines containing "password" between 0 and 6 hours
+echo "Lines containing 'password' between midnight and 6 AM:"
+awk '/ (00|01|02|03|04|05):[0-5][0-9]:[0-5][0-9]/ && /password/' "$logfile"
