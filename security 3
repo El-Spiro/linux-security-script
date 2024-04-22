@@ -8,7 +8,7 @@ fi
 # Add script to Git repository
 git add "$0"
 
-# Commit changes with a meaningful message
+
 git commit -m "Script update: $(date +'%Y-%m-%d %H:%M:%S')"
 
 # Define the directories to monitor
@@ -23,7 +23,7 @@ check_hidden_files() {
     if [ -n "$hidden_files_jason" ]; then
         echo "Hidden files found in $JASON_DIRECTORY:"
         echo "$hidden_files_jason"
-        # You can add additional actions here, like sending an email or a notification
+       
     else
         echo "No hidden files found in $JASON_DIRECTORY."
     fi
